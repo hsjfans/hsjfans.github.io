@@ -3,16 +3,17 @@ layout: page
 title: About
 permalink: /about/
 ---
+## 🤡 前言
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+金庸武侠新序里写到 “小说是写给人看的”。博客也是也给人看的，要求 `纯粹`、`易懂`，能够启迪与人是最好的。古人云：”达则兼济天下，穷则独善其身“，对我本人而言，能够使读者有些许收获算是意外之喜，只求不误人子弟，贻笑大方。
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+王国维在《人间词话》中写到 “古今之成大事业、大学问者，必经过三种之境界：‘昨夜西风凋碧树。独上高楼，望尽天涯路’。此第一境也。‘衣带渐宽终不悔，为伊消得人憔悴。’此第二境也。‘众里寻他千百度，蓦然回首，那人却在，灯火阑珊处’。此第三境也。” ，希望我能够践行之～～～
 
 
-[jekyll-organization]: https://github.com/jekyll
+## 👨‍💻 博主是谁
+
+一个未脱离低级趣味之人，一个努力求索之人。
+
+## 📧 Contact 
+
+You can contact to me via [Email](hsjfans_scholar@gmail.com) or [github](https://github.com/hsjfans) 

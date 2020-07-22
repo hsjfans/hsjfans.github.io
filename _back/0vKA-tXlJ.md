@@ -1,0 +1,111 @@
+---
+title: '一道背包问题的变种'
+date: 2020-05-06 21:40:16
+tags: [dynamic-programming,newcode]
+published: true
+hideInList: false
+feature: 
+isTop: false
+---
+## 题目描述
+一个数组中有若干正整数，将此数组划分为两个子数组，使得两个子数组各元素之和a,b的差最小，对于非法输入应该输出ERROR。
+### 输入描述:
+数组中的元素
+### 输出描述:
+降序输出两个子数组的元素和
+### 示例1
+输入
+```
+10 20 30 10 10
+10 20 abc 10 10
+```
+输出
+```
+40 40
+ERROR
+```
+
+## Solution
+
+链接：https://www.nowcoder.com/questionTerminal/aea0458d54d74f3ca14012cbdf249918?f=discussion
+来源：牛客网
+
+背包问题
+
+有 a + b = sum;
+  a >= b;
+则 b <= sum/2
+
+因此可以转化为 问题
+对于给定的序列 nums, 能够构成 1----sum/2 问题
+
+然后取得最大的能够构成的 b 即可
+
+就是不知道输入为啥👨‍🏫出错
+
+```c++
+#include<iostream>
+#include<vector>
+#include<string>
+using namespace std;
+ 
+// dp 0-1 背包问题
+void package(vector<int> &nums){
+    int n = nums.size() , sum = 0;
+    for(int num : nums) sum += num;
+    int target = sum/2;
+    // 不能重复时
+    vector<bool> dp(target + 1, 0);
+    dp[0] = true;
+     
+    for(int num : nums){
+        for(int i = target; i >= num ; i--){
+            dp[i] = dp[i] || dp[i-num];
+        }
+    }
+    int b = 0;
+    for(int i= target; i >= 0; i--){
+        if(dp[i]) {b = i; break;}
+    }
+    printf("%d %d\n",b,sum-b);
+}
+ 
+ 
+int main()
+{
+    string str ;
+    while (getline(cin,str))
+    {    
+        bool ok = true;
+        for (int i = 0; i < str.size(); i++)
+        {
+            if (str[i] != ' ' && !(str[i] >= '0' && str[i] <= '9'))
+            {
+                ok = false;
+                break;
+            }
+        }
+        if (!ok)
+        {
+            cout << "ERROR" << endl;
+            continue;
+        }
+        vector<int> nums;
+        int prev = 0;
+        for (int i = 0; i < str.size(); i++)
+        {
+            char c = str[i];
+            if (c == ' ' )
+            { 
+                nums.push_back(stoi(str.substr(prev,i-prev)));
+                prev = i + 1;
+            }
+        }
+        nums.push_back(stoi(str.substr(prev,str.size()-prev)));
+        package(nums);
+ 
+    }
+    return 0;
+
+
+    ```

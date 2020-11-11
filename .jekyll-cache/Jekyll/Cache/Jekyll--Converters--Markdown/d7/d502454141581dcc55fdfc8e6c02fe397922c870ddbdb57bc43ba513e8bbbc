@@ -1,0 +1,192 @@
+I"O(<h1 id="感知机">感知机</h1>
+
+<p>感知机(Perceptron), 是一种二分类的线性分类器。 其输入是一个待分类的实例，输出为该实例对应的类型。<br />根据模型、策略和算法三部曲，来说：
+<a name="muWZA"></a></p>
+<h2 id="1-模型">1. 模型</h2>
+<p>由于是一个分类器，其函数模型为：<br />
+<br />\(z = w^Tx + b \qquad (1) \\
+f(x) = sign(z) = \begin{cases}
+1,  &amp; \text{if $z$ &gt; 0} \\
+-1, &amp; \text{if $z$ &lt; 0}
+\end{cases}
+\qquad (2)\)<br /></p>
+
+<p><a name="LfOcb"></a></p>
+<h2 id="2-策略">2. 策略</h2>
+
+<p><br />分类问题的误差函数，可以采用误分类个数之和<br />
+<br />\(Loss(w,b) = \sum_i I(y_i,f(x_i)) \\
+I(y_i,f(x_i)) = \begin{cases}
+  1, &amp;\text{if $y_i\neq f(x_i)$ } \\
+  0, &amp;\text{if $y_i = f(x_i)$}  \\
+\end{cases}\) </p>
+
+<p>但是，该函数无法使用梯度下降法来进行求解。可以考虑一下，每个点到该分类器超平点的距离。</p>
+
+<p><a name="WV6ml"></a></p>
+<h3 id="21-损失函数">2.1 损失函数</h3>
+
+<p><br />假设存在一个超平面 S \(w^Tx + b = 0\) ，将特征划分为正、负两个超平面。超平面 S，其中 w是法向量，b为截距，如下图绿线</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/133048/1600432041362-97dc0235-9158-4da8-9009-26f28ec042e1.png#align=left&amp;display=inline&amp;height=251&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=251&amp;originWidth=372&amp;size=11176&amp;status=done&amp;style=none&amp;width=372" alt="image.png" /><br />此时，我们采用误分类点到超平面的距离之和来作为损失函数。向量空间的任意一点 x 到超平面S的距离为<br />
+<br />\(dis = \frac{1}{||w||}|w^Tx_i + b| \\\)<br />
+<br />由于， 对于误分类的点有：<br />
+<br />\(\begin{cases}
+w^Tx + b &lt; 0,&amp;\text{if $y = 1$} \\
+w^Tx + b &gt; 0,&amp;\text{if $y = -1$} \\
+\end{cases} \\
+-y(w^Tx + b) &gt; 0 , x\subset M\)<br />
+<br />因此损失函数为：<br />
+<br />\(L(w,b) = \sum_i^M -y_i(w^Tx_i + b) \qquad (3) \\\)</p>
+<blockquote>
+  <p>这里省略掉了 ||w|| 或者说是加了约束条件 ||w|| = 1, 思考为什么可以？
+答案见附录 B-1</p>
+</blockquote>
+
+<p><br />明显是一个无约束的线性优化问题，转化为优化问题为：<br />
+<br />\(\arg\min_{w,b} L(w,b)  \\
+s.t \rightarrow  x\in M \qquad (4)\)<br />
+<br />M 是所有误分类的集合，即：<br />
+<br />\(M = \{x| y(w^Tx + b ) &lt;= 0} \\\)<br />要求解式（4）对应得到优化问题，可以采取随机梯度下降法（SGD），参数更新为:<br />
+<br />\(\frac{dL}{dw} = \sum_i^M -y_ix_i  \\
+\frac{dL}{db} = \sum_i^M -y_i \\
+\bbox[yellow,5px,border:2px solid red]
+{
+  w \leftarrow w + \eta y_ix_i  \\
+  b \leftarrow + \eta y_i \\
+  x_i \in M \qquad (5)
+}\)<br />
+<br />
+<br /></p>
+
+<p><a name="TS1Ma"></a></p>
+<h2 id="3-算法">3. 算法</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+1. init w and b 
+2. sample an point (x, y) from dataset:
+3. if (w^Tx + b)y &lt;= 0
+   update parameters w and b as following:
+       w = w + lr*y*x
+       b = b + lr*y
+4. to (2) util 没有误分类点结束
+
+</code></pre></div></div>
+<p><a name="TcMJE"></a></p>
+<h3 id="31-show-me-code">3.1 Show me code</h3>
+
+<blockquote>
+  <p>下面使用了 epoch, 其实完全不用，只需要将 <code class="language-plaintext highlighter-rouge">error == 0</code> 作为结束条件也一样，因为如果数据是线性可分的话，可以证明能够通过有限次的迭代更新来找到一个超平面的。
+使用 epoch 主要是为了方便控制。</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># 这里每次都重新拍不一下数据
+</span>    <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+        <span class="n">y_i</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">w</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y_i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">error</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="n">lr</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="n">lr</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'{} epoch, error is {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span><span class="n">error</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># 直到没有误分类数据结束
+</span>        <span class="k">break</span>
+</code></pre></div></div>
+
+<p><a name="8hfzJ"></a></p>
+<h2 id="4-对偶问题">4. 对偶问题</h2>
+
+<p><br />由优化理论可知，任何线性优化问题都有对应的对偶问题。这里采用较为感性的认识来引出它的对偶问题<br />
+<br />当 w 和 b 均采用 0 初始化时，假设进行了n次更新，模型对点 (x, y) 误分类了 n 次，则由式子（5）可知：<br /></p>
+
+<blockquote>
+  <p>这里可以思考一下如何证明线性可分的问题可以能够通过有限次的迭代获取一个超平面？
+答案见附录 B-1</p>
+</blockquote>
+
+<p>\(w = \sum_i^N n_i\etay_ix_i \\
+b = \sum_i^N n_i\eta y_i\)<br />将w,b 代入到模型中去：<br />
+<br />\(f(x) = sign(w^Tx + b) = sign( \sum_i^N n_i\eta y_ix_i^T x + \sum_i^N n_i\eta y_i ) \\\)<br />这里就可以简化一下计算的过程，无需每次都重复计算向量之间的内积。<br />
+<br />\(G = [x_i\centerdot x_j]_{N\times N} \\\)</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># 相当于对这一步重的 `f(x[i],w,b)` 结果做了一个缓存, 无需重复计算并且对于矩阵运算可以采用 GPU 加速
+</span><span class="n">y_i</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">w</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> 
+</code></pre></div></div>
+<p><a name="Q9xKC"></a></p>
+<h2 id="code">Code</h2>
+
+<p><br />下面是训练过程，代码参考 <a href="https://www.kaggle.com/hsjfans/perceptron">https://www.kaggle.com/hsjfans/perceptron</a><br /></p>
+
+<p><a href=""><img src="https://gw.alipayobjects.com/mdn/prod_resou/afts/img/A*NNs6TKOR3isAAAAAAAAAAABkARQnAQ" alt="movie.mp4 (348.31KB)" /></a><a name="qo2yn"></a></p>
+<h2 id="总结">总结？</h2>
+
+<ol>
+  <li>通过感知机生成的超平面可能存在多个，不同的初始值可能得到不同的超平面，但是哪一个泛化能力最好呢？这就是 svm要讨论的问题了！</li>
+  <li>感知机是线性的，它无法处理非线性的问题，或者抑或问题。后面会介绍到多层感知机，神经网络是用来解决这个问题的。</li>
+</ol>
+
+<p><a name="1tHqa"></a></p>
+<h2 id="附录">附录</h2>
+
+<blockquote>
+  <p>以下都是一家之言，如果问题，欢迎斧正～～～</p>
+</blockquote>
+
+<p><a name="B0j9H"></a></p>
+<h3 id="b-1-为什么能够省略掉-w呢">B-1 为什么能够省略掉 ||w||呢？</h3>
+
+<p><br />个人理解主要是两个方面：</p>
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>对于感知机模型来说，其损失函数的最终结果要优化为0，即没有误差点，所以</td>
+          <td> </td>
+          <td>w</td>
+          <td> </td>
+          <td>可以固定为1或者不考虑。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>对于梯度下降过程来讲，我们每次迭代关注符号的正负，而</td>
+          <td> </td>
+          <td>w</td>
+          <td> </td>
+          <td>的值对其符号没有影响。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+
+<p><a name="zrQBL"></a></p>
+<h3 id="b-2-算法的收敛性">B-2 算法的收敛性</h3>
+
+<p><br />这里参考 《统计学系方法》 p.42</p>
+
+<p><a name="EbN3t"></a></p>
+<h2 id="参考">参考</h2>
+
+<ol>
+  <li>《统计学系方法》李航 p.36</li>
+  <li><a href="https://matplotlib.org/3.1.1/gallery/animation/simple_anim.html">https://matplotlib.org/3.1.1/gallery/animation/simple_anim.html</a></li>
+</ol>
+
+<p><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br /></p>
+
+:ET

@@ -1,0 +1,30 @@
+I"�<h1 id="generative-adversarial-networks">Generative Adversarial Networks</h1>
+
+<p><a href="https://arxiv.org/abs/1406.2661">GAN</a> 是Ian J. Goodfellow 2014年提出的一个新的生成模型。</p>
+
+<h2 id="3-theory-behind-gan">3. Theory Behind GAN</h2>
+
+<blockquote>
+  <p>以图像为例, x代表图片</p>
+</blockquote>
+
+<p>$P_{data}(x)$ 代表实际的图形分布函数。$P_G(x;\theta)$ 代表用来拟合$P_{data}(x)$的一个分布函数,$\theta$代表对应的参数。例如，$P_G(x;\theta)$可以选择采用<code class="language-plaintext highlighter-rouge">GMM</code>(高斯混合分布),此时$\theta$就是$(\mu,\Sigma)$。通过调节$\theta$来使得$P_G{x;\theta}$尽可能的接近$P_{data}(x)$。
+如何评估两种分布函数之间的相似程度呢？这里可以采用某种散度或者最大似然概率（MLE）来量化。</p>
+
+<h3 id="31--mle-or-kl-divergence">3.1  MLE Or KL-Divergence</h3>
+
+<p>首先，从$P_G(x,\theta)$内<code class="language-plaintext highlighter-rouge">Samples</code>出<code class="language-plaintext highlighter-rouge">m</code>个样本，其概率为 $P_G(x^i;\theta)$, 最大其似然概率，即：</p>
+
+\[\begin{align}
+  L &amp;= \int_{i=1}^m P_G(x^i;\theta) \\
+ \end{align}\]
+
+<p>故，$\theta^\star = \arg\max_{\theta}L(\theta)$</p>
+
+\[\begin{align}
+  \theta^\star &amp;= \arg\max_{\theta}L(\theta) \\
+            &amp;= \arg\max_{\theta} \int_i^m P_G(x^i;\theta) \\
+            &amp;= \arg\max_{\theta} \sum_i^m logP_G(x^i;\theta)\\
+  \end{align}\]
+
+:ET
